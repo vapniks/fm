@@ -8,7 +8,7 @@
 ;; Version: 1.0
 ;; Keywords: outlines
 ;; location: http://www.anc.ed.ac.uk/~stephen
-;; RCS: $Id: fm.el,v 1.4 1999/04/08 09:16:37 stephen Exp $
+;; RCS: $Id: fm.el,v 1.5 2012/05/15 08:21:31 stephen Exp $
  
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -110,10 +110,8 @@ This should be added to buffers through hooks, such as
     
     (if (boundp 'fm-defun)
 	(progn
-	  (make-local-hook 'post-command-hook)
-	  (make-local-hook 'pre-command-hook)
-	  (setq post-command-hook '(fm-post-command-hook))
-	  (setq pre-command-hook  '(fm-pre-command-hook))
+	  (add-hook 'post-command-hook 'fm-post-command-hook nil 'local)
+	  (add-hook 'pre-command-hook  'fm-pre-command-hook  nil 'local)
 	  (local-set-key "f" 'fm-toggle)
 	  )
       ;; else 
