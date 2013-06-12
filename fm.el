@@ -3,12 +3,11 @@
 ;; Copyright (C) 1997 Stephen Eglen
 
 ;; Author: Stephen Eglen <stephen@anc.ed.ac.uk>
-;; Maintainer: Stephen Eglen <stephen@anc.ed.ac.uk>
+;; Maintainer: Stephen Eglen <stephen@anc.ed.ac.uk>, Joe Bloggs <vapniks@yahoo.com>
 ;; Created: 03 Jul 1997
-;; Version: 1.0
+;; Version: 20130612.1
 ;; Keywords: outlines
-;; location: http://www.anc.ed.ac.uk/~stephen
-;; RCS: $Id: fm.el,v 1.5 2012/05/15 08:21:31 stephen Exp $
+;; location: https://github.com/vapniks/fm
  
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -34,7 +33,6 @@
 ;; This is inspired by the table of contents code from reftex.el.
 ;; http://www.strw.leidenuniv.nl/~dominik/Tools/
 
-;;; Installation
 ;; To use the mode, do M-x fm-start in the output buffer.  Or just add
 ;; it to the mode hooks, e.g.:
 ;; (add-hook 'occur-mode-hook 'fm-start)
@@ -55,7 +53,13 @@
 ;; "f" key in that buffer.
 
 ;; To extend this code to handle other types of output buffer, you
-;; need to add an entry to the alist `fm-modes'.
+;; need to add an entry to the alist `fm-modes', e.g:
+;; (add-to-list 'fm-modes '(my-mode my-mode-goto-item))
+;; where my-mode-goto-item is a function that opens the source buffer
+;; at the place appropriate for the current item.
+;; You can set the number of lines to display in the items buffer when
+;; in fm-mode by setting the buffer local variable `fm-window-lines'. 
+
 
 ;; If you want to use fm in a buffer that doesn't have a useful major
 ;; mode, you can always set the value of fm-defun yourself.  For
@@ -68,6 +72,8 @@
 (defun cscope-run-fm ()
   "Run cscope in the fm buffer."
   (set (make-local-variable 'fm-defun) '(cscope-interpret-output-line))
+;; You can set the number of lines to show to 10 by uncommenting the following line.  
+;;  (setq fm-window-lines 10)
   (fm-start))
 
 ;; If you are using this in the compile mode, you may find it easier
@@ -75,6 +81,19 @@
 ;; find that if you go up one line, and this line doesn't have an
 ;; error on it, it goes down one line again, taking you back where you
 ;; started!
+
+;;; Installation:
+;;
+;; Put fm.el in a directory in your load-path, e.g. ~/.emacs.d/
+;; You can add a directory to your load-path with the following line in ~/.emacs
+;; (add-to-list 'load-path (expand-file-name "~/elisp"))
+;; where ~/elisp is the directory you want to add 
+;; (you don't need to do this for ~/.emacs.d - it's added by default).
+;;
+;; Add the following to your ~/.emacs startup file.
+;;
+;; (require 'fm)
+
 
 ;;; TODO
 ;; ??
@@ -94,6 +113,9 @@
 
 ;; toggles...
 (defvar fm-working t)
+(defvar fm-window-lines nil
+  "If non-nil then set the output buffer to this many lines in height when follow mode is on.")
+(make-variable-buffer-local 'fm-window-lines)
 
 (defun fm-start ()
   "Set up `follow-mode' to run on the current buffer.
@@ -126,7 +148,7 @@ This should be added to buffers through hooks, such as
 	(fm-unhighlight 1)
 	)))
 
-(defun fm-post-command-hook ()
+(defun fm-post-command-hook (&optional lines)
   "Add the highlighting if possible to both source and output buffers."
   ;;(message (format "run post in %s" (buffer-name)) )
   (if fm-working
@@ -157,13 +179,14 @@ This should be added to buffers through hooks, such as
 		
 		  ;; make the highlight in the output buffer.    
 		  (pop-to-buffer buf)
+
 		  (and (> (point) 1) 
 		       (save-excursion
 			 (fm-highlight 1 
 				       (progn (beginning-of-line) (point))
 				       (progn (end-of-line) (point)))))
-		
-		  )
+                  (if fm-window-lines
+                      (shrink-window (- (window-body-height) fm-window-lines))))
 	      ;; else there was an error 
 	      (progn
 		;; make sure we stay in output buffer.
