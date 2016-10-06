@@ -72,8 +72,8 @@
 (defun cscope-run-fm ()
   "Run cscope in the fm buffer."
   (set (make-local-variable 'fm-defun) '(cscope-interpret-output-line))
-;; You can set the number of lines to show to 10 by uncommenting the following line.  
-;;  (setq fm-window-lines 10)
+  ;; You can set the number of lines to show to 10 by uncommenting the following line.  
+  ;;  (setq fm-window-lines 10)
   (fm-start))
 
 ;; If you are using this in the compile mode, you may find it easier
@@ -103,13 +103,18 @@
 ;; fm-highlight is currently used to highlight the regions of both
 ;; the source(0) and output(1) buffers.
 
-(defvar fm-modes 
-  '( (compilation-mode compile-goto-error)
-     (occur-mode  occur-mode-goto-occurrence)
-     (outlines-mode  outlines-goto-line) ;; sje hack
-     ;;(fundamental-mode cscope-interpret-output-line) ;;todo big time
-     )
-  "Alist of modes and the corresponding defun to visit source buffer.")
+(defgroup fm nil
+  "Customization for `fm'.")
+
+(defcustom fm-modes
+  '((compilation-mode . compile-goto-error)
+    (occur-mode . occur-mode-goto-occurrence)
+    (outlines-mode . outlines-goto-line) ;; sje hack
+    ;;(fundamental-mode cscope-interpret-output-line) ;;todo big time
+    )
+  "Alist of modes and the corresponding defun to visit source buffer."
+  :type '(alist :key-type symbol :value-type function)
+  :group 'fm)
 
 ;; toggles...
 (defvar fm-working t)
@@ -164,7 +169,7 @@ This should be added to buffers through hooks, such as
 
 	    (setq ret
 		  (condition-case nil
-		      (eval fm-defun)
+		      (funcall fm-defun)
 		    (error 'failed)))
 	    ;;(message "ret is %s" ret)
 
@@ -175,8 +180,8 @@ This should be added to buffers through hooks, such as
 		    (fm-highlight 0
 				  (progn (beginning-of-line) (point))
 				  (progn (end-of-line) (point))))
-		
-		
+		  
+		  
 		  ;; make the highlight in the output buffer.    
 		  (pop-to-buffer buf)
 
@@ -191,7 +196,7 @@ This should be added to buffers through hooks, such as
 	      (progn
 		;; make sure we stay in output buffer.
 		(pop-to-buffer buf)
-	      (message "couldn't find line..."))))))))
+		(message "couldn't find line..."))))))))
 
 (defun fm-toggle ()
   "Toggle the fm behaviour on and off."
