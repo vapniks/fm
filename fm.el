@@ -110,6 +110,7 @@
   '((compilation-mode . compile-goto-error)
     (occur-mode . occur-mode-goto-occurrence)
     (outlines-mode . outlines-goto-line) ;; sje hack
+    (grep-mode . compile-goto-error)
     ;;(fundamental-mode cscope-interpret-output-line) ;;todo big time
     )
   "Alist of modes and the corresponding defun to visit source buffer."
@@ -144,8 +145,7 @@ This should be added to buffers through hooks, such as
 	(progn
 	  (add-hook 'post-command-hook 'fm-post-command-hook nil 'local)
 	  (add-hook 'pre-command-hook  'fm-pre-command-hook  nil 'local)
-	  (local-set-key "f" 'fm-toggle)
-	  )
+	  (local-set-key "f" 'fm-toggle))
       ;; else
       (if fm-stop-on-error
 	  (error "Cannot use fm in this mode")
@@ -157,8 +157,7 @@ This should be added to buffers through hooks, such as
   (if fm-working
       (progn
 	(fm-unhighlight 0)
-	(fm-unhighlight 1)
-	)))
+	(fm-unhighlight 1))))
 
 (defun fm-post-command-hook (&optional lines)
   "Add the highlighting if possible to both source and output buffers."
