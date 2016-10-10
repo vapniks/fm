@@ -116,6 +116,11 @@
   :type '(alist :key-type symbol :value-type function)
   :group 'fm)
 
+(defcustom fm-stop-on-error nil
+  "Whether to throw an error and stop if `fm-start' cannot be run."
+  :type 'boolean
+  :group 'fm)
+
 ;; toggles...
 (defvar fm-working t)
 (defvar fm-window-lines nil
@@ -132,7 +137,7 @@ This should be added to buffers through hooks, such as
     (if (not (boundp 'fm-defun))
 	(progn
 	  (setq f (cdr (assoc major-mode fm-modes)))
-	  (if f 
+	  (if f
 	      (set (make-local-variable 'fm-defun) f))))
     
     (if (boundp 'fm-defun)
@@ -141,8 +146,10 @@ This should be added to buffers through hooks, such as
 	  (add-hook 'pre-command-hook  'fm-pre-command-hook  nil 'local)
 	  (local-set-key "f" 'fm-toggle)
 	  )
-      ;; else 
-      (error "Cannot use fm in this mode."))))
+      ;; else
+      (if fm-stop-on-error
+	  (error "Cannot use fm in this mode")
+	(message "Cannot use fm in this mode")))))
 
 (defun fm-pre-command-hook ()
   "Remove highlighing in both source and output buffers."
