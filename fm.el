@@ -50,7 +50,7 @@
 ;; (occur "def")
 
 ;; Once following is activated in a buffer, it can be toggled with the
-;; "f" key in that buffer.
+;; "C-c C-f" key in that buffer. The key can be changed with the `fm-key' option.
 
 ;; To extend this code to handle other types of output buffer, you
 ;; need to add an entry to the alist `fm-modes', e.g:
@@ -122,6 +122,11 @@
   :type 'boolean
   :group 'fm)
 
+(defcustom fm-key "C-c C-f"
+  "Keybinding (as a string for `kbd') to toggle follow mode."
+  :type 'string
+  :group 'fm)
+
 ;; toggles...
 (defvar fm-working t)
 (defvar fm-window-lines nil
@@ -145,7 +150,7 @@ This should be added to buffers through hooks, such as
 	(progn
 	  (add-hook 'post-command-hook 'fm-post-command-hook nil 'local)
 	  (add-hook 'pre-command-hook  'fm-pre-command-hook  nil 'local)
-	  (local-set-key "f" 'fm-toggle))
+	  (local-set-key (kbd fm-key) 'fm-toggle))
       ;; else
       (if fm-stop-on-error
 	  (error "Cannot use fm in this mode")
